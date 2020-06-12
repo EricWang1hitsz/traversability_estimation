@@ -88,12 +88,12 @@ bool TraversabilityEstimation::readParameters() {
     updateDuration_.fromSec(0.0);
   }
   // Read parameters for image subscriber.
-  imageTopic_ = param_io::param<std::string>(nodeHandle_, "image_topic", "/image_elevation");
-  imageResolution_ = param_io::param(nodeHandle_, "resolution", 0.03);
-  imageMinHeight_ = param_io::param(nodeHandle_, "min_height", 0.0);
-  imageMaxHeight_ = param_io::param(nodeHandle_, "max_height", 1.0);
-  imagePosition_.x() = param_io::param(nodeHandle_, "image_position_x", 0.0);
-  imagePosition_.y() = param_io::param(nodeHandle_, "image_position_y", 0.0);
+//  imageTopic_ = param_io::param<std::string>(nodeHandle_, "image_topic", "/image_elevation");
+//  imageResolution_ = param_io::param(nodeHandle_, "resolution", 0.03);
+//  imageMinHeight_ = param_io::param(nodeHandle_, "min_height", 0.0);
+//  imageMaxHeight_ = param_io::param(nodeHandle_, "max_height", 1.0);
+//  imagePosition_.x() = param_io::param(nodeHandle_, "image_position_x", 0.0);
+//  imagePosition_.y() = param_io::param(nodeHandle_, "image_position_y", 0.0);
 
   robotFrameId_ = param_io::param<std::string>(nodeHandle_, "robot_frame_id", "robot");
   robot_ = param_io::param<std::string>(nodeHandle_, "robot", "robot");
@@ -118,6 +118,9 @@ bool TraversabilityEstimation::readParameters() {
   gridMapToInitTraversabilityMapTopic_ =
       param_io::param<std::string>(nodeHandle_, "grid_map_to_initialize_traversability_map/grid_map_topic_name", "initial_elevation_map");
 
+  //eric_wang: Footprint paremeters.
+  radius_ = param_io::param(nodeHandle_, "circular_footprint_radius", 0.5);
+  offset_ = param_io::param(nodeHandle_, "circular_footprint_offset", 0.15);
   return true;
 }
 
@@ -225,7 +228,7 @@ bool TraversabilityEstimation::updateParameter(std_srvs::Empty::Request&, std_sr
   string path = ros::package::getPath(package_);
   string path_filter_parameter = path + "/config/" + robot_ + "_filter_parameter.yaml";
   string path_footprint_parameter = path + "/config/" + robot_ + "_footprint_parameter.yaml";
-  // Filter parameters
+  // Filter parameters.
   string commandString = "rosparam load " + path_filter_parameter + " /traversability_estimation";
   const char* command_filter = commandString.c_str();
   if (system(command_filter) != 0) {
@@ -270,6 +273,10 @@ bool TraversabilityEstimation::requestElevationMap(grid_map_msgs::GridMap& map) 
 
 bool TraversabilityEstimation::traversabilityFootprint(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response) {
   if (!traversabilityMap_.traversabilityFootprint(footprintYaw_)) return false;
+  //eric_wang: traversability footprint using circular footprint.
+  if(!traversabilityMap_.traversabilityFootprint(radius_, offset_)) return false;
+
+  ROS_INFO("Traversability_eatimation: traversabilityFootprint: callback");
 
   return true;
 }

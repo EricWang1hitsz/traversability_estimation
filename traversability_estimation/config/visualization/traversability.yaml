@@ -34,3 +34,11 @@ grid_map_visualizations:
     type: point_cloud
     params:
      layer: elevation
+
+#eric_wang:
+  - name: footprint_map
+    type: occupancy_grid
+    params:
+     layer: traversability_footprint
+     data_min: 1.0
+     data_max: 0.0

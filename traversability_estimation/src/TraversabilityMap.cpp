@@ -224,7 +224,7 @@ bool TraversabilityMap::computeTraversability() {
   traversabilityMapCopy.add("step_footprint");
   traversabilityMapCopy.add("slope_footprint");
   if (checkForRoughness_) traversabilityMapCopy.add("roughness_footprint");
-  traversabilityMapCopy.add("traversability_footprint");
+  traversabilityMapCopy.add("traversability_footprint"); //eric_wang: Add traversability_footprint layer.
 
   scopedLockForTraversabilityMap.lock();
   traversabilityMap_ = traversabilityMapCopy;
@@ -236,6 +236,9 @@ bool TraversabilityMap::computeTraversability() {
 }
 
 bool TraversabilityMap::traversabilityFootprint(double footprintYaw) {
+
+  ROS_INFO("Traversability_map: traversabilityFootprint: polygons");
+
   if (!traversabilityMapInitialized_) return false;
 
   // Initialize timer.
@@ -251,7 +254,7 @@ bool TraversabilityMap::traversabilityFootprint(double footprintYaw) {
   ROS_DEBUG_STREAM("footprint yaw: " << footprintYaw);
   // Compute Orientation
   kindr::RotationQuaternionD xquat, rquat;
-  kindr::AngleAxisD rotationAxis(footprintYaw, 0.0, 0.0, 1.0);
+  kindr::AngleAxisD rotationAxis(footprintYaw, 0.0, 0.0, 1.0); //eric_wang: rotate from z axis.
   rquat = rotationAxis * xquat;
   Eigen::Quaterniond orientationX = xquat.toImplementation();
   Eigen::Quaterniond orientationRot = rquat.toImplementation();
@@ -304,6 +307,8 @@ bool TraversabilityMap::traversabilityFootprint(double footprintYaw) {
 }
 
 bool TraversabilityMap::traversabilityFootprint(const double& radius, const double& offset) {
+
+  ROS_INFO("Traversability_map: traversabilityFootprint: circular");
   double traversability;
   grid_map::Position center;
   boost::recursive_mutex::scoped_lock scopedLockForTraversabilityMap(traversabilityMapMutex_);
@@ -599,21 +604,21 @@ bool TraversabilityMap::isTraversable(const grid_map::Polygon& polygon, const bo
   for (grid_map::PolygonIterator polygonIterator(traversabilityMap_, polygon); !polygonIterator.isPastEnd(); ++polygonIterator) {
     bool currentPositionIsTraversale = isTraversableForFilters(*polygonIterator);
 
-    if (!currentPositionIsTraversale) {
+    if (!currentPositionIsTraversale) {// current position is untraversale.
       pathIsTraversable = false;
       if (computeUntraversablePolygon) {
         grid_map::Position positionUntraversableCell;
         traversabilityMap_.getPosition(*polygonIterator, positionUntraversableCell);
-        untraversablePositions.push_back(positionUntraversableCell);
+        untraversablePositions.push_back(positionUntraversableCell);// get the position untraversable.
       } else {
         return false;
       }
-    } else {
+    } else {// current postion is traversale.
       nCells++;
-      if (!traversabilityMap_.isValid(*polygonIterator, traversabilityType_)) {
+      if (!traversabilityMap_.isValid(*polygonIterator, traversabilityType_)) {// Cell in the index is unvalid.
         traversability += traversabilityDefault_;
-      } else {
-        traversability += traversabilityMap_.at(traversabilityType_, *polygonIterator);
+      } else {// Cell in the index is valid.
+        traversability += traversabilityMap_.at(traversabilityType_, *polygonIterator);// Accumulate traversability.
       }
     }
   }
@@ -652,6 +657,7 @@ bool TraversabilityMap::isTraversable(const grid_map::Position& center, const do
 
 bool TraversabilityMap::isTraversable(const grid_map::Position& center, const double& radiusMax, const bool& computeUntraversablePolygon,
                                       double& traversability, grid_map::Polygon& untraversablePolygon, const double& radiusMin) {
+  ROS_INFO("TraversabilityMap: isTraversable");
   bool circleIsTraversable = true;
   std::vector<grid_map::Position> untraversablePositions;
   grid_map::Position positionUntraversableCell;
@@ -714,15 +720,15 @@ bool TraversabilityMap::isTraversable(const grid_map::Position& center, const do
             // Do not keep on checking, one cell is already non-traversable.
             return false;
           }
-        } else {
+        } else { // current postion is traversale.
           nCells++;
           if (!traversabilityMap_.isValid(*iterator, traversabilityType_)) {
             traversability += traversabilityDefault_;
-          } else {
+          } else {// traversability map is valid in the index.
             traversability += traversabilityMap_.at(traversabilityType_, *iterator);
           }
         }
-      }
+      } // Iterate ends.
 
       if (computeUntraversablePolygon && !circleIsTraversable) {
         untraversablePolygon = grid_map::Polygon::monotoneChainConvexHullOfPoints(untraversablePositions);
@@ -730,6 +736,7 @@ bool TraversabilityMap::isTraversable(const grid_map::Position& center, const do
 
       if (circleIsTraversable) {
         traversability /= nCells;
+        //eric_wang: Add footprint traversability into the traversability_footprint layer.
         traversabilityMap_.at("traversability_footprint", indexCenter) = static_cast<float>(traversability);
       }
     }

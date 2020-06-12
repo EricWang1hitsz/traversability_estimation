@@ -209,6 +209,12 @@ class TraversabilityEstimation {
   //! Vertices of the footprint polygon in base frame.
   double footprintYaw_;
 
+  //eric_wang: Radius of the footprint.
+  double radius_;
+
+  //eric_wang: Circular footprint offset.
+  double offset_;
+
   //! Timer for the map update.
   ros::Timer updateTimer_;
 
