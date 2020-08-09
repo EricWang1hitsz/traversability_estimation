@@ -11,5 +11,5 @@ footprint_yaw: 0.7854
 max_gap_width: 0.3
 grid_map_to_initialize_traversability_map: # Accept grid map to initial traversability map.
   enable: true
-  grid_map_topic_name: "initial_elevation_map"
-
+  # grid_map_topic_name: "initial_elevation_map"
+  grid_map_topic_name: "elevation_mapping/elevation_map"

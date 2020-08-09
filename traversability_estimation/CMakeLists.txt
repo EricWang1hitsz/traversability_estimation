@@ -88,6 +88,7 @@ include_directories(
 add_library(
   ${PROJECT_NAME}
   src/TraversabilityMap.cpp
+  src/TraversabilityMapFused.cpp
 )
 
 target_link_libraries(
@@ -102,12 +103,19 @@ add_executable(
   src/TraversabilityEstimation.cpp
 )
 
+add_executable(traversability_map_fused_node
+    src/traversability_map_fused_node.cpp)
+
 ## Specify libraries to link a library or executable target against
 target_link_libraries(
   ${PROJECT_NAME}_node
   ${catkin_LIBRARIES}
   ${PROJECT_NAME}
 )
+
+target_link_libraries(traversability_map_fused_node
+    ${catkin_LIBRARIES}
+    ${PROJECT_NAME})
 
 #############
 ## Install ##

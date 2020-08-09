@@ -181,3 +181,19 @@ The traversability estimation filters can be applied to an elevation map. Each f
 ## Bugs & Feature Requests
 
 Please report bugs and request features using the [Issue Tracker](https://github.com/ethz-asl/ros_best_practices/issues).
+
+## Eric_Wang Notes:
+*  ```roslaunch simpledog quadruped_simulation.launch```
+
+	 Set odom coordination and get initial base pose;
+
+* ```roslaunch traversability_estimation traversability_estimation.launch```
+
+* ```roslaunch traversability_estimation visualization.launch```
+
+* ```rqt```
+
+  Load elevation map using rqt service;
+* ```rosrun quadruped_motionplan quadruped_motionplanning_test```
+
+	Plan global path using RRT, after you give a 2D navigation goal.

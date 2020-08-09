@@ -29,7 +29,7 @@ TraversabilityEstimation::TraversabilityEstimation(ros::NodeHandle& nodeHandle)
       robotSlopeType_("robot_slope"),
       getImageCallback_(false),
       useRawMap_(false) {
-  ROS_DEBUG("Traversability estimation node started.");
+  ROS_WARN("Traversability estimation node started.");
   readParameters();
   traversabilityMap_.createLayers(useRawMap_);
   submapClient_ = nodeHandle_.serviceClient<grid_map_msgs::GetGridMap>(submapServiceName_);
@@ -50,11 +50,13 @@ TraversabilityEstimation::TraversabilityEstimation(ros::NodeHandle& nodeHandle)
       nodeHandle_.advertiseService("traversability_footprint", &TraversabilityEstimation::traversabilityFootprint, this);
   saveToBagService_ = nodeHandle_.advertiseService("save_traversability_map_to_bag", &TraversabilityEstimation::saveToBag, this);
   imageSubscriber_ = nodeHandle_.subscribe(imageTopic_, 1, &TraversabilityEstimation::imageCallback, this);
-
-  if (acceptGridMapToInitTraversabilityMap_) {
-    gridMapToInitTraversabilityMapSubscriber_ = nodeHandle_.subscribe(
-        gridMapToInitTraversabilityMapTopic_, 1, &TraversabilityEstimation::gridMapToInitTraversabilityMapCallback, this);
-  }
+  //eric_wang: subcribe elevation map via ros topic
+//  if (acceptGridMapToInitTraversabilityMap_) {
+//    gridMapToInitTraversabilityMapSubscriber_ = nodeHandle_.subscribe(
+//        gridMapToInitTraversabilityMapTopic_, 1, &TraversabilityEstimation::gridMapToInitTraversabilityMapCallback, this);
+//  }
+  gridMapToInitTraversabilityMapSubscriber_ = nodeHandle_.subscribe(
+              "elevation_mapping/elevation_map", 1, &TraversabilityEstimation::gridMapToInitTraversabilityMapCallback, this);
 
   elevationMapLayers_.push_back("elevation");
   if (!useRawMap_) {
@@ -368,6 +370,7 @@ bool TraversabilityEstimation::initializeTraversabilityMapFromGridMap(const grid
 }
 
 void TraversabilityEstimation::gridMapToInitTraversabilityMapCallback(const grid_map_msgs::GridMap& message) {
+  ROS_WARN("Get elevation map via topic");
   grid_map::GridMap gridMap;
   grid_map::GridMapRosConverter::fromMessage(message, gridMap);
   if (!initializeTraversabilityMapFromGridMap(gridMap)) {

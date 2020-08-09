@@ -337,7 +337,7 @@ bool TraversabilityMap::checkFootprintPath(const traversability_msgs::FootprintP
     return false;
   }
 
-  if (path.footprint.polygon.points.size() == 0) {
+  if (path.footprint.polygon.points.size() == 0) { // Circular footprint because of no points
     successfullyCheckedFootprint = checkCircularFootprintPath(path, publishPolygons, result);
   } else {
     successfullyCheckedFootprint = checkPolygonalFootprintPath(path, publishPolygons, result);
@@ -359,6 +359,7 @@ bool TraversabilityMap::checkCircularFootprintPath(const traversability_msgs::Fo
   double traversability = 0.0;
   double area = 0.0;
   grid_map::Polygon untraversablePolygon;
+  // Cal robot height info.
   auto robotHeight = computeMeanHeightFromPoses(path.poses.poses);
 
   for (int i = 0; i < arraySize; i++) {

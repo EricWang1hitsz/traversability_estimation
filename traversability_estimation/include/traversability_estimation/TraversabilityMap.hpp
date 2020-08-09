@@ -370,7 +370,7 @@ class TraversabilityMap {
   bool traversabilityMapInitialized_;
 
   //! Elevation map.
-  grid_map::GridMap elevationMap_;
+  grid_map::GridMap elevationMap_; // used for cal traversability
   std::vector<std::string> elevationMapLayers_;
   bool elevationMapInitialized_;
 
