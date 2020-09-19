@@ -104,7 +104,7 @@ bool TraversabilityMap::readParameters() {
     ROS_WARN("Traversability Map: No footprint polygon defined.");
   }
 
-  mapFrameId_ = param_io::param<std::string>(nodeHandle_, "map_frame_id", "map");
+  mapFrameId_ = param_io::param<std::string>(nodeHandle_, "map_frame_id", "odom");
   traversabilityDefaultReadAtInit_ = param_io::param(nodeHandle_, "footprint/traversability_default", 0.5);
   // Safety check
   traversabilityDefaultReadAtInit_ = boundTraversabilityValue(traversabilityDefaultReadAtInit_);
@@ -237,7 +237,7 @@ bool TraversabilityMap::computeTraversability() {
 
 bool TraversabilityMap::traversabilityFootprint(double footprintYaw) {
 
-  ROS_INFO("Traversability_map: traversabilityFootprint: polygons");
+  ROS_INFO("Cal polygon footprint traversability");
 
   if (!traversabilityMapInitialized_) return false;
 
@@ -271,7 +271,7 @@ bool TraversabilityMap::traversabilityFootprint(double footprintYaw) {
     toPosition.x() = position.x();
     toPosition.y() = position.y();
     toPosition.z() = 0.0;
-
+    //!Eric_Wang:read params from yaml file.
     for (const auto& point : footprintPoints_) {
       positionToVertex.x() = point.x;
       positionToVertex.y() = point.y;
@@ -298,6 +298,7 @@ bool TraversabilityMap::traversabilityFootprint(double footprintYaw) {
     else
       traversabilityMap_.at("traversability_rot", *iterator) = 0.0;
   }
+  //!Eric_Wang: No traversability_footprint layer when using polygon footprint.
   scopedLockForTraversabilityMap.unlock();
 
   publishTraversabilityMap();
@@ -308,7 +309,7 @@ bool TraversabilityMap::traversabilityFootprint(double footprintYaw) {
 
 bool TraversabilityMap::traversabilityFootprint(const double& radius, const double& offset) {
 
-  ROS_INFO("Traversability_map: traversabilityFootprint: circular");
+  ROS_INFO("Cal circular footprint traversability");
   double traversability;
   grid_map::Position center;
   boost::recursive_mutex::scoped_lock scopedLockForTraversabilityMap(traversabilityMapMutex_);
@@ -596,6 +597,7 @@ bool TraversabilityMap::isTraversable(const grid_map::Polygon& polygon, double& 
 
 bool TraversabilityMap::isTraversable(const grid_map::Polygon& polygon, const bool& computeUntraversablePolygon, double& traversability,
                                       grid_map::Polygon& untraversablePolygon) {
+  ROS_INFO_ONCE("Check polygon traversability");
   unsigned int nCells = 0;
   traversability = 0.0;
   bool pathIsTraversable = true;
@@ -603,6 +605,7 @@ bool TraversabilityMap::isTraversable(const grid_map::Polygon& polygon, const bo
   // Iterate through polygon and check for traversability.
   boost::recursive_mutex::scoped_lock scopedLockForTraversabilityMap(traversabilityMapMutex_);
   for (grid_map::PolygonIterator polygonIterator(traversabilityMap_, polygon); !polygonIterator.isPastEnd(); ++polygonIterator) {
+    //!Eric_Wang: Check the grid is traversale or not according to traversability_step, traversability_slope and traversability_roughness.
     bool currentPositionIsTraversale = isTraversableForFilters(*polygonIterator);
 
     if (!currentPositionIsTraversale) {// current position is untraversale.
@@ -658,7 +661,7 @@ bool TraversabilityMap::isTraversable(const grid_map::Position& center, const do
 
 bool TraversabilityMap::isTraversable(const grid_map::Position& center, const double& radiusMax, const bool& computeUntraversablePolygon,
                                       double& traversability, grid_map::Polygon& untraversablePolygon, const double& radiusMin) {
-  ROS_INFO("TraversabilityMap: isTraversable");
+  ROS_INFO_ONCE("Check circular traversability");
   bool circleIsTraversable = true;
   std::vector<grid_map::Position> untraversablePositions;
   grid_map::Position positionUntraversableCell;
@@ -801,8 +804,9 @@ bool TraversabilityMap::isTraversableForFilters(const grid_map::Index& indexStep
 bool TraversabilityMap::checkForStep(const grid_map::Index& indexStep) {
   boost::recursive_mutex::scoped_lock scopedLockForTraversabilityMap(traversabilityMapMutex_);
   if (traversabilityMap_.at(stepType_, indexStep) == 0.0) {
+      //ROS_WARN_STREAM("Value at" << stepType_ << " is zero !!! " << std::endl);
     if (!traversabilityMap_.isValid(indexStep, "step_footprint")) {
-      double windowRadiusStep = 2.5 * traversabilityMap_.getResolution();  // 0.075;
+      double windowRadiusStep = 2.5 * traversabilityMap_.getResolution();  // 0.050
 
       vector<grid_map::Index> indices;
       grid_map::Position center;
@@ -868,12 +872,14 @@ bool TraversabilityMap::checkForStep(const grid_map::Index& indexStep) {
       return false;
     }
   }
+//  ROS_INFO("Step Traversability is not Zero");
   return true;
 }
 
 bool TraversabilityMap::checkForSlope(const grid_map::Index& index) {
   boost::recursive_mutex::scoped_lock scopedLockForTraversabilityMap(traversabilityMapMutex_);
   if (traversabilityMap_.at(slopeType_, index) == 0.0) {
+      //ROS_WARN_STREAM("Value at" << slopeType_ << " is zero !!! " << std::endl);
     if (!traversabilityMap_.isValid(index, "slope_footprint")) {
       double windowRadius = 3.0 * traversabilityMap_.getResolution();  // TODO: read this as a parameter?
       double criticalLength = maxGapWidth_ / 3.0;
@@ -902,6 +908,7 @@ bool TraversabilityMap::checkForSlope(const grid_map::Index& index) {
 bool TraversabilityMap::checkForRoughness(const grid_map::Index& index) {
   boost::recursive_mutex::scoped_lock scopedLockForTraversabilityMap(traversabilityMapMutex_);
   if (traversabilityMap_.at(roughnessType_, index) == 0.0) {
+      //ROS_WARN_STREAM("Value at" << roughnessType_ << " is zero !!! " << std::endl);
     if (!traversabilityMap_.isValid(index, "roughness_footprint")) {
       double windowRadius = 3.0 * traversabilityMap_.getResolution();  // TODO: read this as a parameter?
       double criticalLength = maxGapWidth_ / 3.0;

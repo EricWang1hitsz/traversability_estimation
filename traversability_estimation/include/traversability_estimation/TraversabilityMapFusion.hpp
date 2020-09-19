@@ -3,7 +3,8 @@
 #include <ros/ros.h>
 #include <grid_map_ros/grid_map_ros.hpp>
 #include <grid_map_msgs/GridMap.h>
-#include <traversability_estimation/TraversabilityMap.hpp>
+#include <ros/callback_queue.h>
+#include <boost/thread.hpp>
 
 using namespace grid_map;
 namespace traversability_estimation {

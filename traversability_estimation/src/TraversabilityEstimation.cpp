@@ -52,11 +52,12 @@ TraversabilityEstimation::TraversabilityEstimation(ros::NodeHandle& nodeHandle)
   imageSubscriber_ = nodeHandle_.subscribe(imageTopic_, 1, &TraversabilityEstimation::imageCallback, this);
   //eric_wang: subcribe elevation map via ros topic
 //  if (acceptGridMapToInitTraversabilityMap_) {
+//    ROS_INFO("Accept grid map to init traversability map. ");
 //    gridMapToInitTraversabilityMapSubscriber_ = nodeHandle_.subscribe(
 //        gridMapToInitTraversabilityMapTopic_, 1, &TraversabilityEstimation::gridMapToInitTraversabilityMapCallback, this);
 //  }
   gridMapToInitTraversabilityMapSubscriber_ = nodeHandle_.subscribe(
-              "elevation_mapping/elevation_map", 1, &TraversabilityEstimation::gridMapToInitTraversabilityMapCallback, this);
+              "/elevation_mapping/elevation_map", 1, &TraversabilityEstimation::gridMapToInitTraversabilityMapCallback, this);
 
   elevationMapLayers_.push_back("elevation");
   if (!useRawMap_) {
@@ -274,9 +275,10 @@ bool TraversabilityEstimation::requestElevationMap(grid_map_msgs::GridMap& map) 
 }
 
 bool TraversabilityEstimation::traversabilityFootprint(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response) {
+    //!Eric_Wang: Choose one footprint to cal traversability.
   if (!traversabilityMap_.traversabilityFootprint(footprintYaw_)) return false;
   //eric_wang: traversability footprint using circular footprint.
-  if(!traversabilityMap_.traversabilityFootprint(radius_, offset_)) return false;
+//  if(!traversabilityMap_.traversabilityFootprint(radius_, offset_)) return false;
 
   ROS_INFO("Traversability_eatimation: traversabilityFootprint: callback");
 

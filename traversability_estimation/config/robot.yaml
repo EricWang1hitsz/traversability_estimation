@@ -5,10 +5,15 @@ robot_frame_id: "base_link"
 min_update_rate: 0.2
 map_center_x: 0.0
 map_center_y: 0.0
-map_length_x: 5.0
-map_length_y: 5.0
+map_length_x: 6.0
+map_length_y: 6.0
 footprint_yaw: 0.7854
 max_gap_width: 0.3
+# Footprint params.
+circular_footprint_radius: 0.2
+circular_footprint_offset: 0.1
+circular_footprint_radius_inscribed: 0.30
+
 grid_map_to_initialize_traversability_map: # Accept grid map to initial traversability map.
   enable: true
   # grid_map_topic_name: "initial_elevation_map"

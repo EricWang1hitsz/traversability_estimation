@@ -1,11 +1,11 @@
 #include <ros/ros.h>
-#include <traversability_estimation/TraversabilityMapFused.hpp>
+#include <traversability_estimation/TraversabilityMapFusion.hpp>
 
 using namespace traversability_estimation;
 
 int main(int argc, char** argv)
 {
-    ros::init(argc, argv, "traversability_map_fused");
+    ros::init(argc, argv, "traversability_map_fusion");
     ros::NodeHandle nh_;
 
     TraversabilityMapFused fuseMap(nh_);

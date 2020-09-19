@@ -1,4 +1,4 @@
-#include <traversability_estimation/TraversabilityMapFused.hpp>
+#include <traversability_estimation/TraversabilityMapFusion.hpp>
 
 using namespace grid_map;
 
