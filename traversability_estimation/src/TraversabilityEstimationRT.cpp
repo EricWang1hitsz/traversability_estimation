@@ -12,11 +12,11 @@ TraversabilityEstimationRT::TraversabilityEstimationRT(ros::NodeHandle& nodeHand
       robotSlopeType_("robot_slope") {
     // Initilize map layers.
     elevationMapLayers_.push_back("elevation");
-    elevationMapLayers_.push_back("variance");
-    elevationMapLayers_.push_back("horizontal_variance_x");
-    elevationMapLayers_.push_back("horizontal_variance_y");
-    elevationMapLayers_.push_back("horizontal_variance_xy");
-    elevationMapLayers_.push_back("time");
+    //elevationMapLayers_.push_back("variance");
+    //elevationMapLayers_.push_back("horizontal_variance_x");
+    //elevationMapLayers_.push_back("horizontal_variance_y");
+    //elevationMapLayers_.push_back("horizontal_variance_xy");
+    //elevationMapLayers_.push_back("time");
     // Topics and servicers.
     elevationMapSubscriber_ = nodehandle_.subscribe("/elevation_mapping/elevation_map", 100,
                                                     &TraversabilityEstimationRT::elevationMapToTraversabilityMapCallback, this);
